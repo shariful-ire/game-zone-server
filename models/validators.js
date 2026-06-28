@@ -1,6 +1,6 @@
-const { z } = require("zod");
+import { z } from "zod";
 
-const facilitySchema = z.object({
+export const facilitySchema = z.object({
   name: z.string().min(1, "Name is required"),
   facility_type: z.string().min(1, "Facility type is required"),
   location: z.string().min(1, "Location is required"),
@@ -11,7 +11,7 @@ const facilitySchema = z.object({
   available_slots: z.array(z.string()).min(1, "At least one slot is required"),
 });
 
-const bookingSchema = z.object({
+export const bookingSchema = z.object({
   facility_id: z.string().min(1, "Facility ID is required"),
   booking_date: z.string().min(1, "Booking date is required"),
   time_slot: z.string().min(1, "Time slot is required"),
@@ -19,8 +19,6 @@ const bookingSchema = z.object({
   total_price: z.number().positive(),
 });
 
-const bookingUpdateSchema = z.object({
+export const bookingUpdateSchema = z.object({
   status: z.enum(["pending", "confirmed", "cancelled"]),
 });
-
-module.exports = { facilitySchema, bookingSchema, bookingUpdateSchema };
