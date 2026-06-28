@@ -20,13 +20,21 @@ const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:3000";
 // Security
 app.use(helmet());
 
-// Rate limiting
-const limiter = rateLimit({
+// Rate limiting — general
+const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 200,
   message: { message: "Too many requests, please try again later" },
 });
-app.use(limiter);
+app.use(generalLimiter);
+
+// Stricter rate limit for auth endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { message: "Too many auth attempts, please try again later" },
+});
+app.use("/api/auth", authLimiter);
 
 // Logging
 app.use(morgan("dev"));
