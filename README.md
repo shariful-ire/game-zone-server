@@ -56,11 +56,12 @@ REST API backend for the GameZone sports facility booking platform.
 ### Protected (requires authentication)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
+| GET | `/api/facilities/mine` | Get logged-in user's own facilities |
 | POST | `/api/facilities` | Create a facility |
 | PUT | `/api/facilities/:id` | Update a facility (owner only) |
 | DELETE | `/api/facilities/:id` | Delete a facility (owner only) |
 | GET | `/api/bookings` | Get logged-in user's bookings |
-| POST | `/api/bookings` | Create a booking |
+| POST | `/api/bookings` | Create a booking (prevents duplicates) |
 | PATCH | `/api/bookings/:id` | Update booking status (owner only) |
 
 ### Query Parameters for GET `/api/facilities`
@@ -77,4 +78,13 @@ REST API backend for the GameZone sports facility booking platform.
 1. Clone the repository
 2. Run `npm install`
 3. Create a `.env` file based on `.env.example`
-4. Run `npm run dev` for development or `npm start` for production
+4. Add your MongoDB Atlas URI, Better Auth secret, and Google OAuth credentials
+5. In Google Cloud Console, add `http://localhost:5000/api/auth/callback/google` as an authorized redirect URI
+6. Run `npm run dev` for development or `npm start` for production
+
+## Deployment
+
+- Set all `.env` variables in your hosting provider (Render, Vercel, etc.)
+- Update `CLIENT_URL` to your deployed client URL
+- Update `BASE_URL` to your deployed server URL
+- Update Google OAuth redirect URI to match your deployed server
