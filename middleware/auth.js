@@ -1,7 +1,7 @@
-const { getAuth } = require("../lib/auth");
-const { fromNodeHeaders, toNodeHandler } = require("better-auth/node");
+import { getAuth } from "../lib/auth.js";
+import { fromNodeHeaders } from "better-auth/node";
 
-async function requireAuth(req, res, next) {
+export async function requireAuth(req, res, next) {
   try {
     const auth = getAuth();
     const session = await auth.api.getSession({
@@ -18,5 +18,3 @@ async function requireAuth(req, res, next) {
     return res.status(401).json({ message: "Invalid or expired session" });
   }
 }
-
-module.exports = { requireAuth };

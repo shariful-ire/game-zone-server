@@ -1,14 +1,15 @@
-const express = require("express");
-const router = express.Router();
-const { requireAuth } = require("../middleware/auth");
-const {
+import express from "express";
+import { requireAuth } from "../middleware/auth.js";
+import {
   getMyBookings,
   createBooking,
   updateBooking,
-} = require("../controllers/bookingController");
+} from "../controllers/bookingController.js";
+
+const router = express.Router();
 
 router.get("/", requireAuth, getMyBookings);
 router.post("/", requireAuth, createBooking);
 router.patch("/:id", requireAuth, updateBooking);
 
-module.exports = router;
+export default router;

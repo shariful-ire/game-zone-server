@@ -1,18 +1,17 @@
-require("dotenv").config();
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import morgan from "morgan";
+import rateLimit from "express-rate-limit";
+import { toNodeHandler } from "better-auth/node";
 
-const express = require("express");
-const cors = require("cors");
-const cookieParser = require("cookie-parser");
-const helmet = require("helmet");
-const morgan = require("morgan");
-const rateLimit = require("express-rate-limit");
-const { toNodeHandler } = require("better-auth/node");
-
-const { connectDB } = require("./lib/db");
-const { getAuth } = require("./lib/auth");
-const errorHandler = require("./middleware/errorHandler");
-const facilityRoutes = require("./routes/facilities");
-const bookingRoutes = require("./routes/bookings");
+import { connectDB } from "./lib/db.js";
+import { getAuth } from "./lib/auth.js";
+import errorHandler from "./middleware/errorHandler.js";
+import facilityRoutes from "./routes/facilities.js";
+import bookingRoutes from "./routes/bookings.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;

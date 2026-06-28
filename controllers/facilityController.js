@@ -1,8 +1,8 @@
-const { ObjectId } = require("mongodb");
-const { getDB } = require("../lib/db");
-const { facilitySchema } = require("../models/validators");
+import { ObjectId } from "mongodb";
+import { getDB } from "../lib/db.js";
+import { facilitySchema } from "../models/validators.js";
 
-async function getFacilities(req, res, next) {
+export async function getFacilities(req, res, next) {
   try {
     const db = getDB();
     const { search, type, maxPrice, location, featured, page = 1, limit = 20 } = req.query;
@@ -49,7 +49,7 @@ async function getFacilities(req, res, next) {
   }
 }
 
-async function getFacilityById(req, res, next) {
+export async function getFacilityById(req, res, next) {
   try {
     const db = getDB();
     const { id } = req.params;
@@ -71,7 +71,7 @@ async function getFacilityById(req, res, next) {
   }
 }
 
-async function createFacility(req, res, next) {
+export async function createFacility(req, res, next) {
   try {
     const db = getDB();
     const parsed = facilitySchema.safeParse(req.body);
@@ -97,7 +97,7 @@ async function createFacility(req, res, next) {
   }
 }
 
-async function updateFacility(req, res, next) {
+export async function updateFacility(req, res, next) {
   try {
     const db = getDB();
     const { id } = req.params;
@@ -137,7 +137,7 @@ async function updateFacility(req, res, next) {
   }
 }
 
-async function deleteFacility(req, res, next) {
+export async function deleteFacility(req, res, next) {
   try {
     const db = getDB();
     const { id } = req.params;
@@ -163,11 +163,3 @@ async function deleteFacility(req, res, next) {
     next(err);
   }
 }
-
-module.exports = {
-  getFacilities,
-  getFacilityById,
-  createFacility,
-  updateFacility,
-  deleteFacility,
-};

@@ -1,8 +1,8 @@
-const { ObjectId } = require("mongodb");
-const { getDB } = require("../lib/db");
-const { bookingSchema, bookingUpdateSchema } = require("../models/validators");
+import { ObjectId } from "mongodb";
+import { getDB } from "../lib/db.js";
+import { bookingSchema, bookingUpdateSchema } from "../models/validators.js";
 
-async function getMyBookings(req, res, next) {
+export async function getMyBookings(req, res, next) {
   try {
     const db = getDB();
     const bookings = await db
@@ -17,7 +17,7 @@ async function getMyBookings(req, res, next) {
   }
 }
 
-async function createBooking(req, res, next) {
+export async function createBooking(req, res, next) {
   try {
     const db = getDB();
     const parsed = bookingSchema.safeParse(req.body);
@@ -63,7 +63,7 @@ async function createBooking(req, res, next) {
   }
 }
 
-async function updateBooking(req, res, next) {
+export async function updateBooking(req, res, next) {
   try {
     const db = getDB();
     const { id } = req.params;
@@ -102,5 +102,3 @@ async function updateBooking(req, res, next) {
     next(err);
   }
 }
-
-module.exports = { getMyBookings, createBooking, updateBooking };
