@@ -20,26 +20,7 @@ const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:3000";
 // Security
 app.use(helmet());
 
-// Rate limiting — general
-const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 200,
-  message: { message: "Too many requests, please try again later" },
-});
-app.use(generalLimiter);
-
-// Stricter rate limit for auth endpoints
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 20,
-  message: { message: "Too many auth attempts, please try again later" },
-});
-app.use("/api/auth", authLimiter);
-
-// Logging
-app.use(morgan("dev"));
-
-// CORS — allow multiple origins for dev + production
+// CORS — must be BEFORE rate limiters so even 429 responses include CORS headers
 const allowedOrigins = [CLIENT_URL, "http://localhost:3000", "http://localhost:3001"].filter(Boolean);
 app.use(
   cors({
@@ -55,6 +36,25 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
   })
 );
+
+// Rate limiting — general
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  message: { message: "Too many requests, please try again later" },
+});
+app.use(generalLimiter);
+
+// Auth rate limit — higher limit because useSession() polls on every page load
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: { message: "Too many auth attempts, please try again later" },
+});
+app.use("/api/auth", authLimiter);
+
+// Logging
+app.use(morgan("dev"));
 
 // Better Auth handler — must come BEFORE express.json() for its own routes
 app.all("/api/auth/*splat", (req, res) => {
@@ -86,18 +86,17 @@ app.use("/api/bookings", bookingRoutes);
 // Error handler
 app.use(errorHandler);
 
-// Start server
-async function start() {
-  try {
-    await connectDB();
-    app.listen(PORT, () => {
-      console.log(`GameZone API running on http://localhost:${PORT}`);
-      console.log(`Client URL: ${CLIENT_URL}`);
-    });
-  } catch (err) {
-    console.error("Failed to start server:", err.message);
-    process.exit(1);
-  }
+// Connect to DB on cold start
+connectDB().catch((err) => {
+  console.error("Failed to connect to DB:", err.message);
+});
+
+// Local dev: listen on PORT; Vercel: export the app
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`GameZone API running on http://localhost:${PORT}`);
+    console.log(`Client URL: ${CLIENT_URL}`);
+  });
 }
 
-start();
+export default app;

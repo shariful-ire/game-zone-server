@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.get("/", getFacilities);
 router.get("/mine", requireAuth, getMyFacilities);
-router.get("/:id", getFacilityById);
+router.get("/:id", requireAuth, getFacilityById);
 router.post("/", requireAuth, createFacility);
 router.put("/:id", requireAuth, updateFacility);
 router.delete("/:id", requireAuth, deleteFacility);
