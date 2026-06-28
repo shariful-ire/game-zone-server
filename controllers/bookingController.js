@@ -41,6 +41,23 @@ export async function createBooking(req, res, next) {
       return res.status(404).json({ message: "Facility not found" });
     }
 
+    const bookingDate = new Date(parsed.data.booking_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (bookingDate < today) {
+      return res.status(400).json({ message: "Cannot book a past date" });
+    }
+
+    const existing = await db.collection("bookings").findOne({
+      facility_id: parsed.data.facility_id,
+      booking_date: parsed.data.booking_date,
+      time_slot: parsed.data.time_slot,
+      status: { $ne: "cancelled" },
+    });
+    if (existing) {
+      return res.status(409).json({ message: "This slot is already booked for the selected date" });
+    }
+
     const booking = {
       ...parsed.data,
       user_email: req.user.email,
