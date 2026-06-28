@@ -6,11 +6,13 @@ import {
   createFacility,
   updateFacility,
   deleteFacility,
+  getMyFacilities,
 } from "../controllers/facilityController.js";
 
 const router = express.Router();
 
 router.get("/", getFacilities);
+router.get("/mine", requireAuth, getMyFacilities);
 router.get("/:id", getFacilityById);
 router.post("/", requireAuth, createFacility);
 router.put("/:id", requireAuth, updateFacility);

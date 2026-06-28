@@ -5,7 +5,9 @@ import { facilitySchema } from "../models/validators.js";
 export async function getFacilities(req, res, next) {
   try {
     const db = getDB();
-    const { search, type, maxPrice, location, featured, page = 1, limit = 20 } = req.query;
+    const { search, type, maxPrice, location, featured } = req.query;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 20));
 
     const filter = {};
 
@@ -14,11 +16,13 @@ export async function getFacilities(req, res, next) {
     }
 
     if (type) {
-      const types = type.split(",");
-      filter.facility_type = { $in: types };
+      const types = type.split(",").filter(Boolean);
+      if (types.length > 0) {
+        filter.facility_type = { $in: types };
+      }
     }
 
-    if (maxPrice) {
+    if (maxPrice && !isNaN(Number(maxPrice))) {
       filter.price_per_hour = { $lte: Number(maxPrice) };
     }
 
@@ -26,24 +30,19 @@ export async function getFacilities(req, res, next) {
       filter.location = { $regex: location, $options: "i" };
     }
 
-    const skip = (Number(page) - 1) * Number(limit);
+    const skip = (page - 1) * limit;
 
     let sort = { _id: -1 };
     if (featured === "true") {
       sort = { booking_count: -1 };
     }
 
-    const facilities = await db
-      .collection("facilities")
-      .find(filter)
-      .sort(sort)
-      .skip(skip)
-      .limit(Number(limit))
-      .toArray();
+    const [facilities, total] = await Promise.all([
+      db.collection("facilities").find(filter).sort(sort).skip(skip).limit(limit).toArray(),
+      db.collection("facilities").countDocuments(filter),
+    ]);
 
-    const total = await db.collection("facilities").countDocuments(filter);
-
-    res.json({ facilities, total, page: Number(page), limit: Number(limit) });
+    res.json({ facilities, total, page, limit, totalPages: Math.ceil(total / limit) });
   } catch (err) {
     next(err);
   }
@@ -159,6 +158,21 @@ export async function deleteFacility(req, res, next) {
 
     await db.collection("facilities").deleteOne({ _id: new ObjectId(id) });
     res.json({ message: "Facility deleted" });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getMyFacilities(req, res, next) {
+  try {
+    const db = getDB();
+    const facilities = await db
+      .collection("facilities")
+      .find({ owner_email: req.user.email })
+      .sort({ created_at: -1 })
+      .toArray();
+
+    res.json(facilities);
   } catch (err) {
     next(err);
   }
