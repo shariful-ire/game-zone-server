@@ -31,13 +31,20 @@ app.use(limiter);
 // Logging
 app.use(morgan("dev"));
 
-// CORS
+// CORS — allow multiple origins for dev + production
+const allowedOrigins = [CLIENT_URL, "http://localhost:3000", "http://localhost:3001"].filter(Boolean);
 app.use(
   cors({
-    origin: CLIENT_URL,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
   })
 );
 
